@@ -6,21 +6,22 @@
 
 ## Design
 
-```mermaid
-flowchart TD
-  U[DSH Academic Harness / API consumer] --> O[Search Orchestrator]
-  O --> J{Jev decision available?}
-  J -->|Yes| P[Selected provider bundle]
-  J -->|No| R[Explainable rule fallback]
-  R --> P
-  P --> G[Capability and credential gates]
-  G --> A[DSH native adapters / academic-search FastAPI bridge]
-  A --> D[Identity-aware dedupe + version links]
-  D --> F[Reciprocal Rank Fusion by independent source family]
-  F --> C[Canonical records + bibliography provenance]
-  C --> V[Full-text evidence verification: integration required]
-  V --> L[DSH LLM synthesis: integration required]
-```
+[![Architecture, rendered with Pele](docs/diagrams/system-architecture.svg)](docs/diagrams/system-architecture.svg)
+
+Source: [Pele architecture diagram](docs/diagrams/system-architecture.mmd) · [All architectural diagrams](docs/diagrams/README.md)
+
+**Query lifecycle (cross-team swimlane)**
+
+[![Request lifecycle, rendered with Pele](docs/diagrams/query-lifecycle.svg)](docs/diagrams/query-lifecycle.svg)
+
+**Provider call sequence**
+
+[![Adapter calls, rendered with Pele](docs/diagrams/adapter-sequence.svg)](docs/diagrams/adapter-sequence.svg)
+
+**Proposed persistent evidence model**
+
+[![Proposed data model, rendered with Pele](docs/diagrams/proposed-data-model.svg)](docs/diagrams/proposed-data-model.svg)
+
 
 ## Coverage
 
