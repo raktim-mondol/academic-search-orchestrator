@@ -1,0 +1,28 @@
+sequenceDiagram
+  autonumber
+  participant Client as DSH or API client
+  participant Orchestrator
+  participant Jev
+  participant Native as DSH native adapters
+  participant Python as academic-search FastAPI
+  Client->>Orchestrator: searchResearch(query, mode)
+  Orchestrator->>Orchestrator: Check credentials and capabilities
+  opt Jev mode and key configured
+    Orchestrator->>Jev: Classify query and provider preference
+    Jev-->>Orchestrator: Domain, primary provider, confidence
+  end
+  alt Valid Jev decision
+    Orchestrator->>Orchestrator: Gate proposed provider bundle
+  else Unavailable or low confidence
+    Orchestrator->>Orchestrator: Select deterministic rules bundle
+  end
+  par JS native provider
+    Orchestrator->>Native: Search one selected provider
+    Native-->>Orchestrator: Ranked source records
+  and Python-only provider
+    Orchestrator->>Python: POST /v1/papers/search with one provider
+    Python-->>Orchestrator: Ranked source records
+  end
+  Orchestrator->>Orchestrator: Identity match and version relations
+  Orchestrator->>Orchestrator: Independent-source RRF and provenance
+  Orchestrator-->>Client: Canonical papers and bibliography status
