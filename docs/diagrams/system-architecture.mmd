@@ -1,0 +1,29 @@
+architecture-beta
+  group clients(cloud)[Research clients]
+  service dsh(server)[Academic Harness] in clients
+  service api(internet)[Public API future] in clients
+
+  group engine(cloud)[JS Search Orchestrator]
+  service router(server)[Jev or rules router] in engine
+  service gates(server)[Eligibility and quota gates] in engine
+  service dedupe(server)[Canonical dedupe and RRF] in engine
+  service cites(database)[Citation provenance] in engine
+
+  group sources(cloud)[Scholarly retrieval]
+  service native(server)[DSH native adapters] in sources
+  service python(server)[academic-search FastAPI] in sources
+
+  group output(cloud)[Downstream integrations]
+  service evidence(server)[Evidence check planned] in output
+  service synthesis(server)[DSH LLM synthesis optional] in output
+
+  dsh:R --> L:router
+  api:R --> L:router
+  router:R --> L:gates
+  gates:B --> T:native
+  gates:R --> L:python
+  native:B --> T:dedupe
+  python:B --> T:dedupe
+  dedupe:R --> L:cites
+  cites:R --> L:evidence
+  evidence:B --> T:synthesis

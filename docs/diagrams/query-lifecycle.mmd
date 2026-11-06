@@ -1,0 +1,37 @@
+swimlane-beta LR
+  subgraph Researcher
+    request[Submit research query]
+    results[Receive ranked papers and citation status]
+  end
+  subgraph Routing
+    available[Filter executable providers]
+    confident{Jev route confident?}
+    rules[Apply deterministic rules]
+    selected[Select provider bundle]
+  end
+  subgraph Retrieval
+    parallel[Query selected adapters]
+    observations[Collect source observations]
+  end
+  subgraph Identity
+    matching[Match persistent IDs safely]
+    versions[Link related preprint versions]
+    fusion[Fuse independent source ranks]
+  end
+  subgraph Output
+    provenance[Attach bibliography provenance]
+    checks[Keep unverified claims not checked]
+  end
+  request --> available
+  available --> confident
+  confident -->|yes| selected
+  confident -->|no| rules
+  rules --> selected
+  selected --> parallel
+  parallel --> observations
+  observations --> matching
+  matching --> versions
+  versions --> fusion
+  fusion --> provenance
+  provenance --> checks
+  checks --> results

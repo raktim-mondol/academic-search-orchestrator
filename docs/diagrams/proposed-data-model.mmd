@@ -1,0 +1,45 @@
+erDiagram
+  SEARCH_REQUEST ||--o{ PROVIDER_EXECUTION : dispatches
+  PROVIDER_EXECUTION ||--o{ SOURCE_OBSERVATION : returns
+  CANONICAL_PAPER ||--o{ SOURCE_OBSERVATION : represented_by
+  CANONICAL_PAPER ||--o{ VERSION_LINK : linked_from
+  CANONICAL_PAPER ||--o{ CITATION_CHECK : audited_by
+  CANONICAL_PAPER ||--o{ EVIDENCE_PASSAGE : evidenced_by
+  SEARCH_REQUEST {
+    string request_id PK
+    string query
+    string routing_mode
+  }
+  PROVIDER_EXECUTION {
+    string execution_id PK
+    string provider_id
+    string status
+    int rank_limit
+  }
+  SOURCE_OBSERVATION {
+    string observation_id PK
+    string source_id
+    int source_rank
+    string source_work_id
+  }
+  CANONICAL_PAPER {
+    string canonical_id PK
+    string doi
+    string title
+    int publication_year
+  }
+  VERSION_LINK {
+    string version_id PK
+    string related_paper_id
+    string relation_type
+  }
+  CITATION_CHECK {
+    string check_id PK
+    string bibliography_status
+    string checked_at
+  }
+  EVIDENCE_PASSAGE {
+    string passage_id PK
+    string source_locator
+    string claim_support_status
+  }
