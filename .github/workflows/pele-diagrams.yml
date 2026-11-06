@@ -1,0 +1,78 @@
+name: Render Pele architecture diagrams
+
+on:
+  push:
+    branches:
+      - "docs/pele-architecture-diagrams"
+    paths:
+      - "docs/diagrams/**"
+      - ".github/workflows/pele-diagrams.yml"
+      - "README.md"
+  pull_request:
+    paths:
+      - "docs/diagrams/**"
+      - ".github/workflows/pele-diagrams.yml"
+      - "README.md"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  render:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out project
+        uses: actions/checkout@v4
+
+      - name: Check out pinned pele-skill
+        uses: actions/checkout@v4
+        with:
+          repository: jpmanson/pele-skill
+          ref: 50ffbb57f3c4cd7b9f96f7bb02c69c70e6371973
+          path: .tools/pele-skill
+          persist-credentials: false
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Install Pele in skill directory
+        working-directory: .tools/pele-skill/skills/pele
+        run: npm install --no-fund --no-audit
+
+      - name: Verify Pele renderer
+        working-directory: .tools/pele-skill/skills/pele
+        run: node scripts/render.mjs --check
+
+      - name: Render all SVG diagrams with static colors
+        run: |
+          set -euo pipefail
+          for source in docs/diagrams/*.mmd; do
+            output="${source%.mmd}.svg"
+            node .tools/pele-skill/skills/pele/scripts/render.mjs --static-colors "$source" "$output"
+            test -s "$output"
+            grep -q '^<svg' "$output"
+            if grep -q 'var(' "$output"; then
+              echo "::error file=$output::SVG still contains unresolved CSS variables"
+              exit 1
+            fi
+          done
+
+      - name: Upload SVG artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: pele-architecture-svgs
+          path: docs/diagrams/*.svg
+
+      - name: Commit rendered SVGs to feature branch
+        if: github.event_name == 'push' && github.ref == 'refs/heads/docs/pele-architecture-diagrams'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add docs/diagrams/*.svg
+          if ! git diff --cached --quiet; then
+            git commit -m "docs(diagrams): render architecture SVGs with Pele"
+            git push
+          fi
